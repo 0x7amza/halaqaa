@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:halaqaa/core/widgets/utils.widget.dart';
+import 'package:halaqaa/core/utils/QRScanner.utils.dart';
+import 'package:halaqaa/core/utils/widgets.utils.dart';
 import 'package:halaqaa/features/circleDetails/domain/entities/student.dart';
 import 'package:halaqaa/features/circleDetails/presentation/BLoC/bloc.dart';
 import 'package:halaqaa/features/circleDetails/presentation/BLoC/event.dart';
 import 'package:halaqaa/features/circleDetails/presentation/BLoC/state.dart';
 import 'package:halaqaa/features/main/domain/entities/memorization_circle.dart';
+import 'package:halaqaa/features/student/presentation/page/quran_parts_page.dart';
 import 'package:halaqaa/features/student/presentation/page/student_page.dart';
 import 'package:halaqaa/injection_container.dart';
 
@@ -14,10 +16,10 @@ class CircleDetailsScreen extends StatelessWidget {
   final String circleName;
 
   const CircleDetailsScreen({
-    Key? key,
+    super.key,
     required this.circleId,
     required this.circleName,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +35,7 @@ class CircleDetailsScreen extends StatelessWidget {
 class CircleDetailsView extends StatelessWidget {
   final String circleName;
 
-  const CircleDetailsView({Key? key, required this.circleName})
-    : super(key: key);
+  const CircleDetailsView({super.key, required this.circleName});
 
   @override
   Widget build(BuildContext context) {
@@ -61,11 +62,32 @@ class CircleDetailsView extends StatelessWidget {
         ),
         body: BlocConsumer<CircleDetailsBloc, CircleDetailsState>(
           listener: (context, state) {
+            print('Current state: $state');
             if (state is CircleDetailsError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(state.message),
                   backgroundColor: Colors.red,
+                ),
+              );
+            }
+            if (state is StudentDetailsExportedState) {
+              // generate file with student data
+              final studentData = state.data;
+
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('تصدير بيانات الطلاب'),
+                  content: SingleChildScrollView(
+                    child: CompressedQRView(studentData: studentData),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('إغلاق'),
+                    ),
+                  ],
                 ),
               );
             }
@@ -75,7 +97,8 @@ class CircleDetailsView extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
             }
 
-            if (state is CircleDetailsLoaded) {
+            if (state is CircleDetailsLoaded ||
+                state is StudentDetailsExportedState) {
               return _buildContent(context, state);
             }
 
@@ -86,7 +109,7 @@ class CircleDetailsView extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, CircleDetailsLoaded state) {
+  Widget _buildContent(BuildContext context, state) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -94,26 +117,52 @@ class CircleDetailsView extends StatelessWidget {
         children: [
           _buildCircleInfoCard(state.circle),
           const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () => _showAddStudentDialog(
-                context,
-                state.circle.id,
-                BlocProvider.of<CircleDetailsBloc>(context),
-              ),
-              icon: const Icon(Icons.add),
-              label: const Text('إضافة طالب جديد'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF48BB78),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          Row(
+            children: [
+              SizedBox(
+                width: 320,
+                child: ElevatedButton.icon(
+                  onPressed: () => _showAddStudentDialog(
+                    context,
+                    state.circle.id,
+                    BlocProvider.of<CircleDetailsBloc>(context),
+                  ),
+                  icon: const Icon(Icons.add),
+                  label: const Text('إضافة طالب جديد'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF48BB78),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(width: 8),
+              // scan qr icon button
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: const Color(0xFF48BB78)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    print('Scan QR button pressed');
+                    showDialog(
+                      context: context,
+                      builder: (_) => const QRScannerDialog(),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.qr_code_scanner,
+                    color: Color(0xFF48BB78),
+                  ),
+                  tooltip: 'مسح رمز الاستجابة السريعة',
+                ),
+              ),
+            ],
           ),
 
           const SizedBox(height: 24),
@@ -375,7 +424,15 @@ class CircleDetailsView extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            QuranPartsPage(studentId: student.id),
+                      ),
+                    );
+                  },
                   icon: const Icon(Icons.blur_circular_rounded, size: 16),
                   label: const Text('الأجزاء'),
                   style: OutlinedButton.styleFrom(
@@ -391,7 +448,9 @@ class CircleDetailsView extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    // Handle QR action
+                    BlocProvider.of<CircleDetailsBloc>(
+                      context,
+                    ).add(ExportStudentDataEvent(studentId: student.id));
                   },
                   icon: const Icon(Icons.qr_code, size: 16),
                   label: const Text('QR'),
@@ -499,7 +558,7 @@ class CircleDetailsView extends StatelessWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
+              SizedBox(
                 width: double.infinity,
                 child: const Text(
                   'إضافة طالب جديد',

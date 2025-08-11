@@ -2,7 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:halaqaa/core/widgets/utils.widget.dart';
+import 'package:halaqaa/core/utils/widgets.utils.dart';
 import 'package:halaqaa/features/circleDetails/presentation/BLoC/bloc.dart';
 import 'package:halaqaa/features/circleDetails/presentation/page/circle_details.dart';
 import 'package:halaqaa/features/main/domain/entities/memorization_circle.dart';
@@ -12,7 +12,7 @@ import 'package:halaqaa/features/main/presentation/BLoC/states.dart';
 import 'package:halaqaa/injection_container.dart';
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+  const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class DashboardScreen extends StatelessWidget {
 }
 
 class DashboardView extends StatelessWidget {
-  const DashboardView({Key? key}) : super(key: key);
+  const DashboardView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -199,20 +199,18 @@ class DashboardView extends StatelessWidget {
           if (state.circles.isEmpty)
             _buildEmptyState()
           else
-            ...state.circles
-                .map(
-                  (circle) => _buildCircleCard(circle, () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => CircleDetailsScreen(
-                          circleId: circle.id,
-                          circleName: circle.name,
-                        ),
-                      ),
-                    );
-                  }),
-                )
-                .toList(),
+            ...state.circles.map(
+              (circle) => _buildCircleCard(circle, () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => CircleDetailsScreen(
+                      circleId: circle.id,
+                      circleName: circle.name,
+                    ),
+                  ),
+                );
+              }),
+            ),
         ],
       ),
     );
@@ -393,7 +391,7 @@ class DashboardView extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
+                SizedBox(
                   width: double.infinity,
                   child: const Text(
                     'إنشاء حلقة جديدة',

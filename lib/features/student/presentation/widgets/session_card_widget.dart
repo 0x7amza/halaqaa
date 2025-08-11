@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:halaqaa/core/utils/string.utils.dart';
 import 'package:halaqaa/features/student/domain/entities/session.dart';
 import 'package:intl/intl.dart';
 
 class SessionCardWidget extends StatelessWidget {
   final Session session;
 
-  const SessionCardWidget({Key? key, required this.session}) : super(key: key);
+  const SessionCardWidget({super.key, required this.session});
 
   @override
   Widget build(BuildContext context) {
-    final isActive = session.status != 'absent';
     final statusColor = _getStatusColor();
     final statusText = _getStatusText();
     final statusIcon = _getStatusIcon();
@@ -19,9 +19,6 @@ class SessionCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: isActive
-            ? Border.all(color: const Color(0xFF4ECDC4), width: 1)
-            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -37,7 +34,20 @@ class SessionCardWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Status Badge
+              Row(
+                children: [
+                  Icon(Icons.calendar_today, size: 15, color: Colors.green),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${DateFormat('yyyy/MM/dd').format(session.date)} م',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                ],
+              ),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -65,37 +75,48 @@ class SessionCardWidget extends StatelessWidget {
               ),
 
               // Date
-              Text(
-                DateFormat('yyyy/MM/dd').format(session.date) + ' هـ',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
             ],
           ),
 
           const SizedBox(height: 8),
 
-          // Surah Info
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                session.notes.isNotEmpty ? session.notes : 'لا توجد ملاحظات',
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              Icon(
+                Icons.menu_book_rounded,
+                size: 20,
+                color: Colors.orangeAccent[100],
               ),
+              const SizedBox(width: 8),
               Text(
-                '${session.surahName} - آية ${session.fromAyah} إلى ${session.toAyah}',
+                '${surasInfo[int.parse(session.surahNumber) - 1]['name']} - آية ${session.fromAyah} إلى ${session.toAyah}',
                 style: const TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w300,
                   color: Colors.black87,
                 ),
               ),
             ],
           ),
+          if (session.notes.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                session.notes,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w300,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -103,11 +124,13 @@ class SessionCardWidget extends StatelessWidget {
 
   Color _getStatusColor() {
     switch (session.status) {
-      case 'excellent':
+      case 'ممتاز':
         return const Color(0xFFFFA726);
-      case 'good':
+      case 'جيد':
         return const Color(0xFF4ECDC4);
-      case 'absent':
+      case 'يحتاج تحسين':
+        return Colors.orange;
+      case 'غائب':
         return Colors.red;
       default:
         return Colors.grey;
@@ -116,12 +139,14 @@ class SessionCardWidget extends StatelessWidget {
 
   String _getStatusText() {
     switch (session.status) {
-      case 'excellent':
+      case 'ممتاز':
         return 'ممتاز';
-      case 'good':
+      case 'جيد':
         return 'جيد';
-      case 'absent':
+      case 'غائب':
         return 'غائب';
+      case 'يحتاج تحسين':
+        return 'يحتاج تحسين';
       default:
         return 'غير محدد';
     }
@@ -129,12 +154,14 @@ class SessionCardWidget extends StatelessWidget {
 
   IconData _getStatusIcon() {
     switch (session.status) {
-      case 'excellent':
+      case 'ممتاز':
         return Icons.star;
-      case 'good':
+      case 'جيد':
         return Icons.star_half;
-      case 'absent':
+      case 'غائب':
         return Icons.close;
+      case 'يحتاج تحسين':
+        return Icons.warning;
       default:
         return Icons.help_outline;
     }

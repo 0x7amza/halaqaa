@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:halaqaa/core/BLoC/DropDown/drop_down_bloc.dart';
 import 'package:halaqaa/features/circleDetails/data/models/students_adapter.dart';
 import 'package:halaqaa/features/circleDetails/data/repositories/circle_repository_impl.dart';
 import 'package:halaqaa/features/circleDetails/data/repositories/student_repository_impl.dart';
@@ -16,13 +17,17 @@ import 'package:halaqaa/features/main/domain/usecases/create_circle_usecase.dart
 import 'package:halaqaa/features/main/domain/usecases/export_data_usecase.dart';
 import 'package:halaqaa/features/main/domain/usecases/get_circles_usecase.dart';
 import 'package:halaqaa/features/main/presentation/BLoC/bloc.dart';
+import 'package:halaqaa/features/student/data/models/juz_progress_adapter.dart';
 import 'package:halaqaa/features/student/data/models/session_adapter.dart';
 import 'package:halaqaa/features/student/data/repositories/session_repository_implement.dart';
+import 'package:halaqaa/features/student/domain/entities/juz_progress.dart';
 import 'package:halaqaa/features/student/domain/entities/session.dart';
 import 'package:halaqaa/features/student/domain/repositories/session_repository.dart';
+import 'package:halaqaa/features/student/domain/usecase/quran_parts_usecases.dart';
 import 'package:halaqaa/features/student/domain/usecase/sessions_usecases.dart';
 import 'package:halaqaa/features/student/domain/usecase/student_usecases.dart';
-import 'package:halaqaa/features/student/presentation/BLoC/bloc.dart';
+import 'package:halaqaa/features/student/presentation/BLoC/QuranParts/quran_parts_bloc.dart';
+import 'package:halaqaa/features/student/presentation/BLoC/StudentDetails/bloc.dart';
 import 'package:hive/hive.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -30,24 +35,25 @@ final GetIt getIt = GetIt.instance;
 Future<void> setupDependencies() async {
   // Initialize Hive
   await MemorizationRepositoryImpl.init();
-  await Hive.deleteBoxFromDisk('memorization_circles');
-  await Hive.deleteBoxFromDisk('students');
+  // await Hive.deleteBoxFromDisk('memorization_circles');
+  // await Hive.deleteBoxFromDisk('students');
   Hive.registerAdapter(StudentAdapter());
   Hive.registerAdapter(SessionAdapter());
+  Hive.registerAdapter(JuzProgressAdapter());
 
   await Hive.openBox<MemorizationCircle>('memorization_circles');
   await Hive.openBox<Student>('students');
   await Hive.openBox<Session>('sessions');
+  await Hive.openBox<JuzProgress>('juz_progress');
 
+  // Core - bloc
+  getIt.registerFactory(() => DropDownBloc());
   // Repository
   getIt.registerLazySingleton<MemorizationRepository>(
     () => MemorizationRepositoryImpl(),
   );
 
   // Use Cases
-  getIt.registerLazySingleton(() => GetCirclesUseCase(getIt()));
-  getIt.registerLazySingleton(() => CreateCircleUseCase(getIt()));
-  getIt.registerLazySingleton(() => ExportDataUseCase(getIt()));
 
   // BLoC
   getIt.registerFactory(
@@ -55,6 +61,13 @@ Future<void> setupDependencies() async {
       getCirclesUseCase: getIt(),
       createCircleUseCase: getIt(),
       exportDataUseCase: getIt(),
+    ),
+  );
+  getIt.registerFactory(
+    () => QuranPartsBloc(
+      getQuranParts: getIt(),
+      getStudentSessions: getIt(),
+      getStudentById: getIt(),
     ),
   );
 
@@ -70,8 +83,13 @@ Future<void> setupDependencies() async {
   // Use Cases
   getIt.registerLazySingleton(() => GetStudentsByCircleUseCase(getIt()));
   getIt.registerLazySingleton(() => CreateStudentUseCase(getIt()));
-  getIt.registerLazySingleton(() => GetCircleByIdUseCase(getIt()));
   getIt.registerLazySingleton(() => UpdateCircleUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetQuranParts(getIt()));
+  getIt.registerLazySingleton(() => GetCirclesUseCase(getIt()));
+  getIt.registerLazySingleton(() => CreateCircleUseCase(getIt()));
+  getIt.registerLazySingleton(() => ExportDataUseCase(getIt()));
+  getIt.registerLazySingleton(() => GetCircleByIdUseCase(getIt()));
+  getIt.registerLazySingleton(() => ExportStudentData(getIt()));
 
   // BLoC
   getIt.registerFactory(
@@ -80,6 +98,7 @@ Future<void> setupDependencies() async {
       createStudentUseCase: getIt(),
       getCircleByIdUseCase: getIt(),
       updateCircleUseCase: getIt(),
+      exportStudentData: getIt(),
     ),
   );
 

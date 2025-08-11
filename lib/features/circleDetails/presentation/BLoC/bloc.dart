@@ -6,21 +6,25 @@ import 'package:halaqaa/features/circleDetails/domain/usecases/create_student_us
 import 'package:halaqaa/features/circleDetails/domain/usecases/get_student_usecase.dart';
 import 'package:halaqaa/features/circleDetails/presentation/BLoC/event.dart';
 import 'package:halaqaa/features/circleDetails/presentation/BLoC/state.dart';
+import 'package:halaqaa/features/student/domain/usecase/student_usecases.dart';
 
 class CircleDetailsBloc extends Bloc<CircleDetailsEvent, CircleDetailsState> {
   final GetStudentsByCircleUseCase getStudentsByCircleUseCase;
   final CreateStudentUseCase createStudentUseCase;
   final GetCircleByIdUseCase getCircleByIdUseCase;
   final UpdateCircleUseCase updateCircleUseCase;
+  final ExportStudentData exportStudentData;
 
   CircleDetailsBloc({
     required this.getStudentsByCircleUseCase,
     required this.createStudentUseCase,
     required this.getCircleByIdUseCase,
     required this.updateCircleUseCase,
+    required this.exportStudentData,
   }) : super(CircleDetailsInitial()) {
     on<LoadCircleDetailsEvent>(_onLoadCircleDetails);
     on<AddStudentEvent>(_onAddStudent);
+    on<ExportStudentDataEvent>(_onExportStudentData);
   }
 
   Future<void> _onLoadCircleDetails(
@@ -103,10 +107,8 @@ class CircleDetailsBloc extends Bloc<CircleDetailsEvent, CircleDetailsState> {
         joinDate: DateTime.now(),
         updatedAt: DateTime.now(),
       );
-      print('Adding new student: ${newStudent.name}');
 
       final result = await createStudentUseCase(newStudent);
-      print('Create student result: $result');
 
       if (result.isLeft()) {
         final error = result.fold((l) => l, (r) => null);
@@ -139,5 +141,42 @@ class CircleDetailsBloc extends Bloc<CircleDetailsEvent, CircleDetailsState> {
         CircleDetailsLoaded(students: updatedStudents, circle: updatedCircle),
       );
     }
+  }
+
+  Future<void> _onExportStudentData(
+    ExportStudentDataEvent event,
+    Emitter<CircleDetailsState> emit,
+  ) async {
+    late final List<Student> students;
+    late final MemorizationCircle circle;
+    if (state is CircleDetailsLoaded) {
+      students = (state as CircleDetailsLoaded).students;
+      circle = (state as CircleDetailsLoaded).circle;
+    } else if (state is StudentDetailsExportedState) {
+      students = (state as StudentDetailsExportedState).students;
+      circle = (state as StudentDetailsExportedState).circle;
+    } else {
+      emit(
+        CircleDetailsError(
+          message: 'Invalid state for exporting student data.',
+        ),
+      );
+      return;
+    }
+
+    final result = await exportStudentData(event.studentId);
+    if (result.isLeft()) {
+      final error = result.fold((l) => l, (r) => null);
+      emit(CircleDetailsError(message: error!));
+      return;
+    }
+
+    emit(
+      StudentDetailsExportedState(
+        data: result.getOrElse(() => throw Exception('Unexpected null')),
+        students: students,
+        circle: circle,
+      ),
+    );
   }
 }

@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:halaqaa/features/student/presentation/BLoC/bloc.dart';
-import 'package:halaqaa/features/student/presentation/BLoC/event.dart';
-import 'package:halaqaa/features/student/presentation/BLoC/state.dart';
+import 'package:halaqaa/core/size.dart';
+import 'package:halaqaa/features/student/presentation/BLoC/StudentDetails/bloc.dart';
+import 'package:halaqaa/features/student/presentation/BLoC/StudentDetails/event.dart';
+import 'package:halaqaa/features/student/presentation/BLoC/StudentDetails/state.dart';
 import 'package:halaqaa/injection_container.dart';
 import '../widgets/student_detail_loaded_widget.dart';
 
 class StudentDetailPage extends StatelessWidget {
   final String studentId;
 
-  const StudentDetailPage({Key? key, required this.studentId})
-    : super(key: key);
+  const StudentDetailPage({super.key, required this.studentId});
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
     return Scaffold(
       body: BlocProvider(
         create: (context) =>

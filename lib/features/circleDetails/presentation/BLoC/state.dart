@@ -31,3 +31,18 @@ class CircleDetailsError extends CircleDetailsState {
   @override
   List<Object> get props => [message];
 }
+
+class StudentDetailsExportedState extends CircleDetailsState {
+  final Map<String, dynamic> data;
+  final List<Student> students;
+  final MemorizationCircle circle;
+
+  const StudentDetailsExportedState({
+    required this.data,
+    required this.students,
+    required this.circle,
+  });
+
+  @override
+  List<Object> get props => [data, students, circle];
+}

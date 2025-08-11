@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:halaqaa/features/student/domain/usecase/sessions_usecases.dart';
 import 'package:halaqaa/features/student/domain/usecase/student_usecases.dart';
-import 'package:halaqaa/features/student/presentation/BLoC/event.dart';
-import 'package:halaqaa/features/student/presentation/BLoC/state.dart';
+import 'package:halaqaa/features/student/presentation/BLoC/StudentDetails/event.dart';
+import 'package:halaqaa/features/student/presentation/BLoC/StudentDetails/state.dart';
 
 class StudentDetailBloc extends Bloc<StudentDetailEvent, StudentDetailState> {
   final GetStudentById getStudentById;
@@ -44,18 +44,14 @@ class StudentDetailBloc extends Bloc<StudentDetailEvent, StudentDetailState> {
     AddSessionEvent event,
     Emitter<StudentDetailState> emit,
   ) async {
-    if (state is StudentDetailLoaded) {
-      final currentState = state as StudentDetailLoaded;
-
-      final result = await addSession(event.session);
-
-      await result.fold(
-        (failure) async => emit(StudentDetailError(message: failure)),
-        (_) async {
-          add(RefreshStudentDetailEvent(studentId: event.session.studentId));
-        },
-      );
-    }
+    final result = await addSession(event.session);
+    print('Adding session result: $result');
+    await result.fold(
+      (failure) async => emit(StudentDetailError(message: failure)),
+      (_) async {
+        add(RefreshStudentDetailEvent(studentId: event.session.studentId));
+      },
+    );
   }
 
   Future<void> _onRefreshStudentDetail(

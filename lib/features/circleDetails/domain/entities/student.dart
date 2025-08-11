@@ -59,4 +59,46 @@ class Student extends Equatable {
     joinDate,
     updatedAt,
   ];
+
+  @override
+  Student copyWith({
+    String? id,
+    String? name,
+    String? type,
+    String? circleId,
+    int? completedParts,
+    int? currentPart,
+    int? stars,
+    String? status,
+    DateTime? joinDate,
+    DateTime? updatedAt,
+  }) {
+    return Student(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      circleId: circleId ?? this.circleId,
+      completedParts: completedParts ?? this.completedParts,
+      currentPart: currentPart ?? this.currentPart,
+      stars: stars ?? this.stars,
+      status: status ?? this.status,
+      joinDate: joinDate ?? this.joinDate,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'type': type,
+      'circleId': circleId,
+      'completedParts': completedParts,
+      'currentPart': currentPart,
+      'stars': stars,
+      'status': status,
+      'joinDate': joinDate.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
 }

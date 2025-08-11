@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:halaqaa/features/student/domain/entities/juz_progress.dart';
 import 'package:halaqaa/features/student/domain/entities/session.dart';
 
 abstract class SessionRepository {
@@ -6,4 +7,8 @@ abstract class SessionRepository {
   Future<Either<String, Unit>> addSession(Session session);
   Future<Either<String, Unit>> deleteSession(String sessionId);
   Future<Either<String, Unit>> updateSession(Session session);
+  Future<Either<String, List<JuzProgress>>> getQuranParts(String studentId);
+  Future<Either<String, Map<String, dynamic>>> exportStudentData(
+    String studentId,
+  );
 }

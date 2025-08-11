@@ -13,7 +13,7 @@ class Session extends Equatable {
   final DateTime date;
 
   @HiveField(3)
-  final String surahName;
+  final String surahNumber;
 
   @HiveField(4)
   final int fromAyah;
@@ -22,7 +22,7 @@ class Session extends Equatable {
   final int toAyah;
 
   @HiveField(6)
-  final String status; // 'excellent', 'good', 'absent'
+  final String status;
 
   @HiveField(7)
   final String notes;
@@ -34,7 +34,7 @@ class Session extends Equatable {
     required this.id,
     required this.studentId,
     required this.date,
-    required this.surahName,
+    required this.surahNumber,
     required this.fromAyah,
     required this.toAyah,
     required this.status,
@@ -43,11 +43,26 @@ class Session extends Equatable {
   });
 
   @override
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'studentId': studentId,
+      'date': date.toIso8601String(),
+      'surahNumber': surahNumber,
+      'fromAyah': fromAyah,
+      'toAyah': toAyah,
+      'status': status,
+      'notes': notes,
+      'stars': stars,
+    };
+  }
+
+  @override
   List<Object?> get props => [
     id,
     studentId,
     date,
-    surahName,
+    surahNumber,
     fromAyah,
     toAyah,
     status,

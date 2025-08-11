@@ -11,7 +11,7 @@ class SessionAdapter extends TypeAdapter<Session> {
       id: reader.read() as String,
       studentId: reader.read() as String,
       date: reader.read() as DateTime,
-      surahName: reader.read() as String,
+      surahNumber: reader.read() as String,
       fromAyah: reader.read() as int,
       toAyah: reader.read() as int,
       status: reader.read() as String,
@@ -25,7 +25,7 @@ class SessionAdapter extends TypeAdapter<Session> {
     writer.write(obj.id);
     writer.write(obj.studentId);
     writer.write(obj.date);
-    writer.write(obj.surahName);
+    writer.write(obj.surahNumber);
     writer.write(obj.fromAyah);
     writer.write(obj.toAyah);
     writer.write(obj.status);

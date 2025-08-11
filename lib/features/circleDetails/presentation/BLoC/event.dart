@@ -30,3 +30,12 @@ class AddStudentEvent extends CircleDetailsEvent {
   @override
   List<Object> get props => [name, type, circleId];
 }
+
+class ExportStudentDataEvent extends CircleDetailsEvent {
+  final String studentId;
+
+  const ExportStudentDataEvent({required this.studentId});
+
+  @override
+  List<Object> get props => [studentId];
+}

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:halaqaa/core/widgets/utils.widget.dart';
+import 'package:halaqaa/core/size.dart';
+import 'package:halaqaa/core/utils/string.utils.dart';
+import 'package:halaqaa/core/utils/widgets.utils.dart';
 import 'package:halaqaa/features/circleDetails/domain/entities/student.dart';
 import 'package:halaqaa/features/student/domain/entities/session.dart';
-import 'package:halaqaa/features/student/presentation/BLoC/bloc.dart';
+import 'package:halaqaa/features/student/presentation/BLoC/StudentDetails/bloc.dart';
+import 'package:halaqaa/features/student/presentation/BLoC/StudentDetails/event.dart';
 import 'package:intl/intl.dart';
 import 'session_card_widget.dart';
 
@@ -12,26 +15,26 @@ class StudentDetailLoadedWidget extends StatelessWidget {
   final List<Session> sessions;
 
   const StudentDetailLoadedWidget({
-    Key? key,
+    super.key,
     required this.student,
     required this.sessions,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F8FA),
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black54),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF4A5568)),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'تقدم الطالب',
           style: TextStyle(
-            color: Colors.black87,
+            color: Color(0xFF4A5568),
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -74,34 +77,6 @@ class StudentDetailLoadedWidget extends StatelessWidget {
                   // Student Details Row
                   Row(
                     children: [
-                      // Left Column - Join Date
-                      Expanded(
-                        child: Column(
-                          children: [
-                            const Text(
-                              'تاريخ الانضمام',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              DateFormat('yyyy/MM/dd').format(student.joinDate),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(width: 32),
-
-                      // Right Column - Student Type
                       Expanded(
                         child: Column(
                           children: [
@@ -135,12 +110,38 @@ class StudentDetailLoadedWidget extends StatelessWidget {
                           ],
                         ),
                       ),
+                      const SizedBox(width: 32),
+
+                      Expanded(
+                        child: Column(
+                          children: [
+                            const Text(
+                              'تاريخ الانضمام',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              DateFormat('yyyy/MM/dd').format(student.joinDate),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 15.2),
+                  Container(height: 0.6, color: Colors.grey),
+                  const SizedBox(height: 15.2),
 
-                  // Statistics Row
                   Row(
                     children: [
                       Expanded(
@@ -170,7 +171,7 @@ class StudentDetailLoadedWidget extends StatelessWidget {
                         child: Column(
                           children: [
                             Text(
-                              '${student.completedParts}',
+                              sessions.length.toString(),
                               style: const TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.bold,
@@ -199,12 +200,11 @@ class StudentDetailLoadedWidget extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Add New Session Button
-            Container(
+            SizedBox(
               width: double.infinity,
               height: 45,
               child: ElevatedButton(
                 onPressed: () {
-                  // Navigate to add session screen
                   _showAddSessionDialog(
                     context,
                     BlocProvider.of<StudentDetailBloc>(context),
@@ -288,164 +288,249 @@ class StudentDetailLoadedWidget extends StatelessWidget {
     );
   }
 
-  void _showAddSessionDialog(BuildContext context, bloc) {
-    // This would show a dialog to add a new session
-    // You can implement this based on your requirements
+  void _showAddSessionDialog(BuildContext context, StudentDetailBloc bloc) {
     showDialog(
       context: context,
-      builder: (dialogContext) => BlocProvider.value(
-        value: bloc,
-        child: AlertDialog(
-          backgroundColor: Colors.grey[100],
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: double.infinity,
-                child: const Text(
-                  'تسجيل التقدم اليومي',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16, width: 500),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      builder: (dialogContext) {
+        var statusText = 'جيد';
+        TextEditingController fromAyahController = TextEditingController(
+          text: '1',
+        );
+        TextEditingController toAyahController = TextEditingController(
+          text: '1',
+        );
+        TextEditingController noteController = TextEditingController();
+        var value = 'الفاتحة - 1';
+        return BlocProvider.value(
+          value: bloc,
+          child: AlertDialog(
+            backgroundColor: Colors.grey[100],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            content: SizedBox(
+              width: SizeConfig().wp(75),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(
                     width: double.infinity,
-                    child: textField(
-                      hintText: 'من أية',
-                      title: 'من أية',
-                      controller: TextEditingController(text: '1'),
+                    child: const Text(
+                      'تسجيل التقدم اليومي',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 16),
+
                   SizedBox(
                     width: double.infinity,
-                    child: textField(
-                      hintText: 'إلى أية',
-                      title: 'إلى أية',
-                      controller: TextEditingController(text: '1'),
+                    child: dropDwon(
+                      items: surasInfo.map((e) {
+                        return '${e['name']} - ${e['number']}';
+                      }).toList(),
+                      value: value,
+                      title: 'اختر السورة',
+                      onTap: (val) {
+                        value = val;
+                      },
                     ),
                   ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12), // زاوية مستديرة
-                ),
-                child: DropdownButtonFormField<String>(
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 16,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none, // بدون حواف
-                    ),
-                  ),
-                  icon: const Icon(Icons.arrow_drop_down), // أيقونة مخصصة
-                  dropdownColor: Colors.white, // لون خلفية القائمة
-                  borderRadius: BorderRadius.circular(
-                    12,
-                  ), // زوايا مستديرة للقائمة
-                  elevation: 4, // ظل خفيف للقائمة
-                  menuMaxHeight: 200, // أقصى ارتفاع للقائمة
-                  alignment:
-                      AlignmentDirectional.bottomStart, // توضعها أسفل الزر
-
-                  items: ['حفظ', 'قراءة', 'قراءة وحفظ']
-                      .map(
-                        (value) => DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(
-                            value,
-                            style: const TextStyle(color: Colors.black),
-                          ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: SizeConfig().wp(33),
+                        child: textField(
+                          hintText: 'من أية',
+                          title: 'من أية',
+                          controller: fromAyahController,
                         ),
-                      )
-                      .toList(),
-
-                  onChanged: (value) {},
-
-                  hint: const Text(
-                    'اختر نوع الطالب',
-                    style: TextStyle(color: Colors.grey),
+                      ),
+                      SizedBox(
+                        width: SizeConfig().wp(33),
+                        child: textField(
+                          hintText: 'إلى أية',
+                          title: 'إلى أية',
+                          controller: toAyahController,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
 
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (false) {
-                          ScaffoldMessenger.of(dialogContext).showSnackBar(
-                            const SnackBar(
-                              content: Text('يرجى ملء جميع الحقول'),
-                              backgroundColor: Colors.red,
+                  const SizedBox(height: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'مستوى الاداء',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      SizedBox(height: 5.0),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(
+                            12,
+                          ), // زاوية مستديرة
+                        ),
+                        child: DropdownButtonFormField<String>(
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 16,
                             ),
-                          );
-                          return;
-                        }
-                        bloc.add(
-                          // Add your event to add a new student
-                          // Example: AddStudentEvent(name: nameController.text, type: selectedType),
-                        );
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none, // بدون حواف
+                            ),
+                          ),
+                          icon: const Icon(
+                            Icons.arrow_drop_down,
+                          ), // أيقونة مخصصة
+                          dropdownColor: Colors.white, // لون خلفية القائمة
+                          borderRadius: BorderRadius.circular(
+                            12,
+                          ), // زوايا مستديرة للقائمة
+                          elevation: 4, // ظل خفيف للقائمة
+                          menuMaxHeight: 200, // أقصى ارتفاع للقائمة
+                          alignment: AlignmentDirectional
+                              .bottomStart, // توضعها أسفل الزر
 
-                        Navigator.of(dialogContext).pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF48BB78),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                          items: ['غائب', 'يحتاج تحسين', 'جيد', 'ممتاز']
+                              .map(
+                                (value) => DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(
+                                    value,
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+
+                          onChanged: (value) {
+                            if (value != null) {
+                              statusText = value;
+                            }
+                          },
+                          value: 'جيد',
                         ),
                       ),
-                      child: const Text('إضافة'),
-                    ),
+                    ],
                   ),
 
-                  const SizedBox(width: 16),
+                  const SizedBox(height: 16),
+                  textField(
+                    hintText: 'ملاحظات اضافية (اختياري)',
+                    height: 150,
+                    isHintCentered: false,
+                    title: 'ملاحظات',
+                    controller: noteController,
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            final sorahNumber =
+                                int.parse(value.split('-')[1]) - 1;
+                            print('Adding session for Surah: $sorahNumber');
+                            print('shorahName: $value');
+                            print('Status: $statusText');
+                            print(noteController.text);
+                            print(surasInfo[sorahNumber]['count']);
+                            print(
+                              'from: ${int.parse(fromAyahController.text)} to: ${int.parse(toAyahController.text)}',
+                            );
 
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(dialogContext).pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[300],
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                            if (value.isEmpty ||
+                                fromAyahController.text.isEmpty ||
+                                toAyahController.text.isEmpty ||
+                                int.parse(fromAyahController.text) < 1 ||
+                                int.parse(toAyahController.text) <
+                                    int.parse(fromAyahController.text) ||
+                                int.parse(toAyahController.text) >
+                                    surasInfo[sorahNumber]['count'] ||
+                                int.parse(fromAyahController.text) >
+                                    surasInfo[sorahNumber]['count']) {
+                              ScaffoldMessenger.of(dialogContext).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'الرجاء ملء جميع الحقول بشكل صحيح',
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              return;
+                            }
+                            bloc.add(
+                              AddSessionEvent(
+                                session: Session(
+                                  date: DateTime.now(),
+                                  surahNumber: (sorahNumber + 1).toString(),
+                                  fromAyah: int.parse(fromAyahController.text),
+                                  toAyah: int.parse(toAyahController.text),
+                                  status: statusText,
+                                  notes: noteController.text,
+                                  stars: 0,
+                                  studentId: student.id,
+                                  id: DateTime.now().toIso8601String(),
+                                ),
+                              ),
+                            );
+
+                            Navigator.of(dialogContext).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF48BB78),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                          child: const Text('إضافة'),
                         ),
                       ),
-                      child: const Text('إلغاء'),
-                    ),
+
+                      const SizedBox(width: 16),
+
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey[300],
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                          child: const Text('إلغاء'),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
