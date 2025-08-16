@@ -10,11 +10,11 @@ import 'package:halaqaa/features/main/domain/entities/memorization_circle.dart';
 import 'package:halaqaa/features/student/presentation/page/quran_parts_page.dart';
 import 'package:halaqaa/features/student/presentation/page/student_page.dart';
 import 'package:halaqaa/injection_container.dart';
+import 'package:halaqaa/core/size.dart';
 
 class CircleDetailsScreen extends StatelessWidget {
   final String circleId;
   final String circleName;
-
   const CircleDetailsScreen({
     super.key,
     required this.circleId,
@@ -34,22 +34,23 @@ class CircleDetailsScreen extends StatelessWidget {
 
 class CircleDetailsView extends StatelessWidget {
   final String circleName;
-
   const CircleDetailsView({super.key, required this.circleName});
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: const Color(0xFFF5F7FA),
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             'تفاصيل الحلقة',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: SizeConfig().sp(18),
               fontWeight: FontWeight.w100,
-              color: Color(0xFF48BB78),
+              color: const Color(0xFF48BB78),
             ),
           ),
           backgroundColor: Colors.white,
@@ -72,13 +73,11 @@ class CircleDetailsView extends StatelessWidget {
               );
             }
             if (state is StudentDetailsExportedState) {
-              // generate file with student data
               final studentData = state.data;
-
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('تصدير بيانات الطلاب'),
+                  title: const Text('إنشاء ملف QR'),
                   content: SingleChildScrollView(
                     child: CompressedQRView(studentData: studentData),
                   ),
@@ -96,13 +95,11 @@ class CircleDetailsView extends StatelessWidget {
             if (state is CircleDetailsLoading) {
               return const Center(child: CircularProgressIndicator());
             }
-
             if (state is CircleDetailsLoaded ||
                 state is StudentDetailsExportedState) {
               return _buildContent(context, state);
             }
-
-            return const Center(child: Text('حدث خطأ في تحميل البيانات'));
+            return const Center(child: Text('لا توجد بيانات'));
           },
         ),
       ),
@@ -111,76 +108,81 @@ class CircleDetailsView extends StatelessWidget {
 
   Widget _buildContent(BuildContext context, state) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(SizeConfig().wp(5)), // 16px
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildCircleInfoCard(state.circle),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              SizedBox(
-                width: 320,
-                child: ElevatedButton.icon(
-                  onPressed: () => _showAddStudentDialog(
-                    context,
-                    state.circle.id,
-                    BlocProvider.of<CircleDetailsBloc>(context),
-                  ),
-                  icon: const Icon(Icons.add),
-                  label: const Text('إضافة طالب جديد'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF48BB78),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+          SizedBox(height: SizeConfig().hp(2)), // 16px
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment:
+                  CrossAxisAlignment.stretch, // يخلي الارتفاع كامل
+              children: [
+                Expanded(
+                  flex: 4, // نسبة عرض الزر الأول
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showAddStudentDialog(
+                      context,
+                      state.circle.id,
+                      BlocProvider.of<CircleDetailsBloc>(context),
+                    ),
+                    icon: const Icon(Icons.add),
+                    label: const Text('إضافة طالب جديد'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF48BB78),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: EdgeInsets.symmetric(
+                        vertical: SizeConfig().hp(2),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          SizeConfig().wp(3.2),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              // scan qr icon button
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF48BB78)),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: IconButton(
-                  onPressed: () {
-                    print('Scan QR button pressed');
-                    showDialog(
-                      context: context,
-                      builder: (_) => const QRScannerDialog(),
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.qr_code_scanner,
-                    color: Color(0xFF48BB78),
+                SizedBox(width: SizeConfig().wp(2)),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFF48BB78)),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  tooltip: 'مسح رمز الاستجابة السريعة',
+                  child: AspectRatio(
+                    aspectRatio: 1, // مربع
+                    child: IconButton(
+                      onPressed: () {
+                        print('Scan QR button pressed');
+                        showDialog(
+                          context: context,
+                          builder: (_) => const QRScannerDialog(),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.qr_code_scanner,
+                        color: Color(0xFF48BB78),
+                      ),
+                      tooltip: 'مسح رمز الاستجابة السريعة',
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          // Students Section
-          const Text(
-            'قائمة الطلاب',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w300,
-              color: Color(0xFF48BB78),
+              ],
             ),
           ),
-
-          const SizedBox(height: 12),
-
+          SizedBox(height: SizeConfig().hp(1)), // 24px
+          Text(
+            'طلاب الحلقة',
+            style: TextStyle(
+              fontSize: SizeConfig().sp(18),
+              fontWeight: FontWeight.w300,
+              color: const Color(0xFF48BB78),
+            ),
+          ),
+          SizedBox(height: SizeConfig().hp(0.6)), // 12px
           if (state.students.isEmpty)
-            _buildEmptyState()
+            _buildEmptyState(context, state)
           else
             ...state.students
                 .map((student) => _buildStudentCard(student, context))
@@ -193,15 +195,15 @@ class CircleDetailsView extends StatelessWidget {
   Widget _buildCircleInfoCard(MemorizationCircle circle) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(SizeConfig().wp(5.3)), // 20px
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(SizeConfig().wp(4.3)), // 16px
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            blurRadius: SizeConfig().wp(2.7), // 10px
+            offset: Offset(0, SizeConfig().hp(0.06)), // 2px
           ),
         ],
       ),
@@ -209,34 +211,37 @@ class CircleDetailsView extends StatelessWidget {
         children: [
           Text(
             circle.name,
-            style: const TextStyle(
-              fontSize: 20,
+            style: TextStyle(
+              fontSize: SizeConfig().sp(20),
               fontWeight: FontWeight.w600,
-              color: Color(0xFF48BB78),
+              color: const Color(0xFF48BB78),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: SizeConfig().hp(0.25)), // 8px
           Text(
             circle.description,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF718096)),
+            style: TextStyle(
+              fontSize: SizeConfig().sp(14),
+              color: const Color(0xFF718096),
+            ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: SizeConfig().hp(0.83)), // 20px
           Row(
             children: [
               Expanded(
                 child: _buildStatItem(
                   icon: Icons.people,
-                  title: 'إجمالي الطلاب',
+                  title: 'عدد الطلاب',
                   count: circle.studentsCount.toString(),
                   color: const Color(0xFF48BB78),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: SizeConfig().wp(4.3)), // 16px
               Expanded(
                 child: _buildStatItem(
                   icon: Icons.check_circle,
-                  title: 'الطلاب النشطون',
+                  title: 'الطلاب النشطين',
                   count: circle.activeStudentsCount.toString(),
                   color: const Color(0xFFED8936),
                 ),
@@ -255,27 +260,30 @@ class CircleDetailsView extends StatelessWidget {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(SizeConfig().wp(4.3)), // 16px
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(SizeConfig().wp(3.2)), // 12px
       ),
       child: Column(
         children: [
-          Icon(icon, size: 24, color: color),
-          const SizedBox(height: 8),
+          Icon(icon, size: SizeConfig().wp(6.4), color: color), // 24px
+          SizedBox(height: SizeConfig().hp(0.25)), // 8px
           Text(
             count,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: SizeConfig().sp(20),
               fontWeight: FontWeight.bold,
               color: color,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: SizeConfig().hp(0.12)), // 4px
           Text(
             title,
-            style: const TextStyle(fontSize: 12, color: Color(0xFF718096)),
+            style: TextStyle(
+              fontSize: SizeConfig().sp(12),
+              color: const Color(0xFF718096),
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -285,72 +293,76 @@ class CircleDetailsView extends StatelessWidget {
 
   Widget _buildStudentCard(Student student, context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: SizeConfig().hp(0.5)), // 12px
+      padding: EdgeInsets.all(SizeConfig().wp(4.3)), // 16px
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(SizeConfig().wp(3.2)), // 12px
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            blurRadius: SizeConfig().wp(2.7), // 10px
+            offset: Offset(0, SizeConfig().hp(0.06)), // 2px
           ),
         ],
       ),
       child: Column(
         children: [
-          // Student Info Row
           Row(
             children: [
               CircleAvatar(
-                radius: 24,
+                radius: SizeConfig().wp(6.4), // 24px
                 backgroundColor: const Color(0xFF48BB78).withOpacity(0.1),
                 child: Text(
                   student.name.isNotEmpty ? student.name[0] : 'ط',
-                  style: const TextStyle(
-                    fontSize: 18,
+                  style: TextStyle(
+                    fontSize: SizeConfig().sp(18),
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF48BB78),
+                    color: const Color(0xFF48BB78),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: SizeConfig().wp(3.2)), // 12px
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       student.name,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: SizeConfig().sp(16),
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF2D3748),
+                        color: const Color(0xFF2D3748),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: SizeConfig().hp(0.12)), // 4px
                     Text(
                       'انضم: ${_formatDate(student.joinDate)}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF718096),
+                      style: TextStyle(
+                        fontSize: SizeConfig().sp(12),
+                        color: const Color(0xFF718096),
                       ),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.symmetric(
+                  horizontal: SizeConfig().wp(2.1),
+                  vertical: SizeConfig().hp(0.13),
+                ), // 8,4px
                 decoration: BoxDecoration(
                   color: student.status == 'active'
                       ? const Color(0xFF48BB78).withOpacity(0.1)
                       : Colors.grey.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(
+                    SizeConfig().wp(3.2),
+                  ), // 12px
                 ),
                 child: Text(
-                  student.status == 'active' ? 'نشط' : 'خمول',
+                  student.status == 'active' ? 'نشط' : 'غير نشط',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: SizeConfig().sp(12),
                     fontWeight: FontWeight.w500,
                     color: student.status == 'active'
                         ? const Color(0xFF48BB78)
@@ -360,10 +372,7 @@ class CircleDetailsView extends StatelessWidget {
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Stats Row
+          SizedBox(height: SizeConfig().hp(0.67)), // 16px
           Row(
             children: [
               Expanded(
@@ -385,17 +394,14 @@ class CircleDetailsView extends StatelessWidget {
               Expanded(
                 child: _buildStudentStat(
                   icon: Icons.check_circle,
-                  label: 'مكتملة',
+                  label: 'إكمال',
                   value: student.completedParts.toString(),
                   color: const Color(0xFF48BB78),
                 ),
               ),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Action Buttons
+          SizedBox(height: SizeConfig().hp(0.67)), // 16px
           Row(
             children: [
               Expanded(
@@ -409,19 +415,23 @@ class CircleDetailsView extends StatelessWidget {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.info_outline, size: 16),
+                  icon: const Icon(Icons.info_outline, size: 14),
                   label: const Text('تفاصيل'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: const Color(0xFF48BB78),
                     side: const BorderSide(color: Color(0xFF48BB78)),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(6),
                     ),
+                    minimumSize: Size(
+                      double.infinity,
+                      SizeConfig().hp(5),
+                    ), // الارتفاع الثابت
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: SizeConfig().wp(1.8)),
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
@@ -433,33 +443,41 @@ class CircleDetailsView extends StatelessWidget {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.blur_circular_rounded, size: 16),
+                  icon: const Icon(Icons.blur_circular_rounded, size: 14),
                   label: const Text('الأجزاء'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF4299E1),
                     side: const BorderSide(color: Color(0xFF4299E1)),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(6),
                     ),
+                    minimumSize: Size(double.infinity, SizeConfig().hp(5)),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    BlocProvider.of<CircleDetailsBloc>(
-                      context,
-                    ).add(ExportStudentDataEvent(studentId: student.id));
-                  },
-                  icon: const Icon(Icons.qr_code, size: 16),
-                  label: const Text('QR'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFED8936),
-                    side: const BorderSide(color: Color(0xFFED8936)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+              SizedBox(width: SizeConfig().wp(1.8)),
+              SizedBox(
+                height: SizeConfig().hp(5),
+                width: SizeConfig().hp(5), // مربع
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: const Color(0xFFED8936),
+                      width: 1.2,
                     ),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: IconButton(
+                    padding: EdgeInsets.zero, // إزالة الحشو الافتراضي
+                    constraints:
+                        const BoxConstraints(), // منع القيود الافتراضية
+                    tooltip: 'QR',
+                    icon: const Icon(Icons.qr_code, color: Color(0xFFED8936)),
+                    onPressed: () {
+                      BlocProvider.of<CircleDetailsBloc>(
+                        context,
+                      ).add(ExportStudentDataEvent(studentId: student.id));
+                    },
                   ),
                 ),
               ),
@@ -483,51 +501,68 @@ class CircleDetailsView extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 12, color: color),
-            const SizedBox(width: 4),
+            Icon(icon, size: SizeConfig().wp(3.2), color: color), // 12px
+            SizedBox(width: SizeConfig().wp(1.1)), // 4px
             Text(
               value,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: SizeConfig().sp(14),
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: SizeConfig().hp(0.12)), // 4px
         Text(
           label,
-          style: const TextStyle(fontSize: 11, color: Color(0xFF718096)),
+          style: TextStyle(
+            fontSize: SizeConfig().sp(11),
+            color: const Color(0xFF718096),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context, state) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(48),
+      padding: EdgeInsets.all(SizeConfig().wp(12.8)), // 48px
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(SizeConfig().wp(3.2)), // 12px
       ),
       child: Column(
         children: [
-          Icon(Icons.people_outline, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
+          Icon(
+            Icons.people_outline,
+            size: SizeConfig().wp(17.1),
+            color: Colors.grey[400],
+          ), // 64px
+          SizedBox(height: SizeConfig().hp(0.67)), // 16px
           Text(
             'لا يوجد طلاب في هذه الحلقة',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: SizeConfig().sp(16),
               fontWeight: FontWeight.w500,
               color: Colors.grey[600],
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'ابدأ بإضافة الطلاب للحلقة',
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+          SizedBox(height: SizeConfig().hp(0.33)), // 8px
+          InkWell(
+            onTap: () => _showAddStudentDialog(
+              context,
+              state.circle.id,
+              BlocProvider.of<CircleDetailsBloc>(context),
+            ),
+            child: Text(
+              'اضغط لإضافة طلاب للحلقة',
+              style: TextStyle(
+                fontSize: SizeConfig().sp(14),
+                color: Colors.grey[500],
+              ),
+            ),
           ),
         ],
       ),
@@ -545,7 +580,6 @@ class CircleDetailsView extends StatelessWidget {
   ) {
     final nameController = TextEditingController();
     String? selectedValue;
-
     showDialog(
       context: context,
       builder: (dialogContext) => BlocProvider.value(
@@ -553,7 +587,7 @@ class CircleDetailsView extends StatelessWidget {
         child: AlertDialog(
           backgroundColor: Colors.grey[100],
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(SizeConfig().wp(2.7)), // 10px
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -569,46 +603,44 @@ class CircleDetailsView extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 16, width: 500),
-
+              SizedBox(height: SizeConfig().hp(0.67), width: 500), // 16px
               textField(
-                hintText: 'أدخل اسم الطالب',
+                hintText: 'اكتب اسم الطالب',
                 title: 'اسم الطالب',
                 controller: nameController,
               ),
-
-              const SizedBox(height: 16),
+              SizedBox(height: SizeConfig().hp(0.67)), // 16px
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: EdgeInsets.symmetric(
+                  horizontal: SizeConfig().wp(3.2),
+                ), // 12px
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12), // زاوية مستديرة
+                  borderRadius: BorderRadius.circular(
+                    SizeConfig().wp(3.2),
+                  ), // 12px
                 ),
                 child: DropdownButtonFormField<String>(
                   isExpanded: true,
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 16,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: SizeConfig().wp(3.2),
+                      vertical: SizeConfig().hp(2), // 16px
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none, // بدون حواف
+                      borderRadius: BorderRadius.circular(SizeConfig().wp(3.2)),
+                      borderSide: BorderSide.none,
                     ),
                   ),
-                  icon: const Icon(Icons.arrow_drop_down), // أيقونة مخصصة
-                  dropdownColor: Colors.white, // لون خلفية القائمة
-                  borderRadius: BorderRadius.circular(
-                    12,
-                  ), // زوايا مستديرة للقائمة
-                  elevation: 4, // ظل خفيف للقائمة
-                  menuMaxHeight: 200, // أقصى ارتفاع للقائمة
-                  alignment:
-                      AlignmentDirectional.bottomStart, // توضعها أسفل الزر
-
-                  items: ['حفظ', 'قراءة', 'قراءة وحفظ']
+                  icon: const Icon(Icons.arrow_drop_down),
+                  dropdownColor: Colors.white,
+                  borderRadius: BorderRadius.circular(SizeConfig().wp(3.2)),
+                  elevation: 4,
+                  menuMaxHeight: 200,
+                  alignment: AlignmentDirectional.bottomStart,
+                  items: ['حفظ', 'قراءة', 'حفظ وقراءة']
                       .map(
                         (value) => DropdownMenuItem<String>(
                           value: value,
@@ -619,19 +651,16 @@ class CircleDetailsView extends StatelessWidget {
                         ),
                       )
                       .toList(),
-
                   onChanged: (value) {
                     selectedValue = value;
                   },
-
                   hint: const Text(
                     'اختر نوع الطالب',
                     style: TextStyle(color: Colors.grey),
                   ),
                 ),
               ),
-
-              const SizedBox(height: 24),
+              SizedBox(height: SizeConfig().hp(1)), // 24px
               Row(
                 children: [
                   Expanded(
@@ -641,7 +670,7 @@ class CircleDetailsView extends StatelessWidget {
                             selectedValue == null) {
                           ScaffoldMessenger.of(dialogContext).showSnackBar(
                             const SnackBar(
-                              content: Text('يرجى ملء جميع الحقول'),
+                              content: Text('اكتب الاسم واختر النوع'),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -654,22 +683,21 @@ class CircleDetailsView extends StatelessWidget {
                             name: nameController.text,
                           ),
                         );
-
                         Navigator.of(dialogContext).pop();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF48BB78),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                          borderRadius: BorderRadius.circular(
+                            SizeConfig().wp(2.1),
+                          ), // 8px
                         ),
                       ),
                       child: const Text('إضافة'),
                     ),
                   ),
-
-                  const SizedBox(width: 16),
-
+                  SizedBox(width: SizeConfig().wp(4.3)), // 16px
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
@@ -679,7 +707,9 @@ class CircleDetailsView extends StatelessWidget {
                         backgroundColor: Colors.grey[300],
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                          borderRadius: BorderRadius.circular(
+                            SizeConfig().wp(2.1),
+                          ), // 8px
                         ),
                       ),
                       child: const Text('إلغاء'),

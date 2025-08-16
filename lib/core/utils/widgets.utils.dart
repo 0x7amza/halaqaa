@@ -14,6 +14,7 @@ Widget textField({
   isHintCentered = true,
   title = '',
   required controller,
+  TextInputType keyboardType = TextInputType.multiline,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,7 +39,7 @@ Widget textField({
           expands: true,
           maxLines: null,
 
-          keyboardType: TextInputType.multiline,
+          keyboardType: keyboardType,
           textAlignVertical: isHintCentered
               ? TextAlignVertical.center
               : TextAlignVertical.top,

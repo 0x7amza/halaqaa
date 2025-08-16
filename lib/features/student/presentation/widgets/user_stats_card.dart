@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:halaqaa/core/size.dart'; // 确保导入 SizeConfig
 import '../../../circleDetails/domain/entities/student.dart';
 
 class UserStatsCard extends StatelessWidget {
@@ -6,7 +7,6 @@ class UserStatsCard extends StatelessWidget {
   final int totalDays;
   final int overallProgress;
   final int completedJuz;
-
   const UserStatsCard({
     super.key,
     required this.student,
@@ -17,17 +17,19 @@ class UserStatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context); // 初始化 SizeConfig
+
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 4),
-      padding: EdgeInsets.all(20),
+      margin: EdgeInsets.symmetric(horizontal: SizeConfig().wp(1.1)), // 4px
+      padding: EdgeInsets.all(SizeConfig().wp(5.3)), // 20px
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(SizeConfig().wp(4.3)), // 16px
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 2),
+            blurRadius: SizeConfig().wp(2.7), // 10px
+            offset: Offset(0, SizeConfig().hp(0.12)), // 2px
           ),
         ],
       ),
@@ -37,15 +39,20 @@ class UserStatsCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: EdgeInsets.symmetric(
+                  horizontal: SizeConfig().wp(3.2), // 12px
+                  vertical: SizeConfig().hp(0.37), // 6px
+                ),
                 decoration: BoxDecoration(
                   color: _getStatusColor().withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(
+                    SizeConfig().wp(5.3),
+                  ), // 20px
                 ),
                 child: Text(
                   student.type,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: SizeConfig().sp(12), // 12px
                     color: _getStatusColor(),
                     fontWeight: FontWeight.w500,
                   ),
@@ -54,99 +61,110 @@ class UserStatsCard extends StatelessWidget {
               Text(
                 student.name,
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: SizeConfig().sp(18), // 18px
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
+                  color: const Color(0xFF2D3748),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 20),
+          SizedBox(height: SizeConfig().hp(1.25)), // 20px
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildStatItem(
                 icon: Icons.library_books,
                 value: completedJuz.toString(),
-                label: 'أجزاء مكتملة',
-                color: Color(0xFF48BB78),
+                label: 'عدد الأجزاء المكتملة',
+                color: const Color(0xFF48BB78),
               ),
               _buildStatItem(
                 icon: Icons.local_fire_department,
                 value: totalDays.toString(),
-                label: 'أيام الدراسة',
-                color: Color(0xFFF56565),
+                label: 'عدد الأيام',
+                color: const Color(0xFFF56565),
               ),
               _buildStatItem(
                 icon: Icons.timeline,
                 value: student.currentPart.toString(),
                 label: 'الجزء الحالي',
-                color: Color(0xFF9F7AEA),
+                color: const Color(0xFF9F7AEA),
               ),
             ],
           ),
-          SizedBox(height: 20),
+          SizedBox(height: SizeConfig().hp(1.25)), // 20px
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'التقدم الإجمالي',
-                style: TextStyle(fontSize: 14, color: Color(0xFF4A5568)),
+                'معدل التقدم العام',
+                style: TextStyle(
+                  fontSize: SizeConfig().sp(14), // 14px
+                  color: const Color(0xFF4A5568),
+                ),
               ),
               Text(
                 '$overallProgress%',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: SizeConfig().sp(14), // 14px
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
+                  color: const Color(0xFF2D3748),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 8),
+          SizedBox(height: SizeConfig().hp(0.5)), // 8px
           LinearProgressIndicator(
             value: overallProgress / 100,
-            backgroundColor: Color(0xFFE2E8F0),
-            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF48BB78)),
-            minHeight: 6,
+            backgroundColor: const Color(0xFFE2E8F0),
+            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF48BB78)),
+            minHeight: SizeConfig().hp(0.37), // 6px
           ),
-          SizedBox(height: 12),
+          SizedBox(height: SizeConfig().hp(0.75)), // 12px
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'تاريخ الانضمام: ${student.joinDate.toString().substring(0, 10)}',
-                style: TextStyle(fontSize: 11, color: Color(0xFF718096)),
+                style: TextStyle(
+                  fontSize: SizeConfig().sp(11), // 11px
+                  color: const Color(0xFF718096),
+                ),
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.symmetric(
+                  horizontal: SizeConfig().wp(2.1), // 8px
+                  vertical: SizeConfig().hp(0.25), // 4px
+                ),
                 decoration: BoxDecoration(
                   color: student.status == 'active'
-                      ? Color(0xFF48BB78).withOpacity(0.1)
-                      : Color(0xFF718096).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                      ? const Color(0xFF48BB78).withOpacity(0.1)
+                      : const Color(0xFF718096).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(
+                    SizeConfig().wp(3.2),
+                  ), // 12px
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      width: 6,
-                      height: 6,
+                      width: SizeConfig().wp(1.6), // 6px
+                      height: SizeConfig().wp(1.6), // 6px
                       decoration: BoxDecoration(
                         color: student.status == 'active'
-                            ? Color(0xFF48BB78)
-                            : Color(0xFF718096),
+                            ? const Color(0xFF48BB78)
+                            : const Color(0xFF718096),
                         shape: BoxShape.circle,
                       ),
                     ),
-                    SizedBox(width: 4),
+                    SizedBox(width: SizeConfig().wp(1.1)), // 4px
                     Text(
                       student.status == 'active' ? 'نشط' : 'غير نشط',
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: SizeConfig().sp(10), // 10px
                         color: student.status == 'active'
-                            ? Color(0xFF48BB78)
-                            : Color(0xFF718096),
+                            ? const Color(0xFF48BB78)
+                            : const Color(0xFF718096),
                       ),
                     ),
                   ],

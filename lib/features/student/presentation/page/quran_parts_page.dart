@@ -6,6 +6,7 @@ import 'package:halaqaa/features/student/presentation/BLoC/QuranParts/quran_part
 import 'package:halaqaa/features/student/presentation/widgets/quran_parts_grid.dart';
 import 'package:halaqaa/features/student/presentation/widgets/user_stats_card.dart';
 import 'package:halaqaa/injection_container.dart';
+import 'package:halaqaa/core/size.dart';
 
 class QuranPartsPage extends StatelessWidget {
   final String studentId;
@@ -23,13 +24,14 @@ class QuranPartsPage extends StatelessWidget {
 
 class QuranPartsPageWidget extends StatelessWidget {
   final String studentId;
-
   const QuranPartsPageWidget({super.key, required this.studentId});
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context); // Initialize SizeConfig
+
     return Scaffold(
-      backgroundColor: Color(0xFFF5F7FA),
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -37,11 +39,11 @@ class QuranPartsPageWidget extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Color(0xFF4A5568)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'أجزاء القرآن الكريم',
           style: TextStyle(
-            color: Color(0xFF4A5568),
-            fontSize: 18,
+            color: const Color(0xFF4A5568),
+            fontSize: SizeConfig().sp(18), // Scaled font size
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -57,37 +59,49 @@ class QuranPartsPageWidget extends StatelessWidget {
                     return Center(
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          Color(0xFF48BB78),
+                          const Color(0xFF48BB78),
                         ),
                       ),
                     );
                   } else if (state is QuranPartsLoaded) {
                     return SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: SizeConfig().wp(4.3),
+                      ), // 16px horizontal padding
                       child: Column(
                         children: [
-                          SizedBox(height: 20),
+                          SizedBox(
+                            height: SizeConfig().hp(0.83),
+                          ), // 20px height
                           UserStatsCard(
                             student: state.student,
                             totalDays: state.totalDays,
                             overallProgress: state.overallProgress,
                             completedJuz: state.completedJuz,
                           ),
-                          SizedBox(height: 30),
+                          SizedBox(
+                            height: SizeConfig().hp(1.25),
+                          ), // 30px height
                           Align(
                             alignment: Alignment.centerRight,
                             child: Text(
                               'أجزاء القرآن الكريم',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: SizeConfig().sp(
+                                  20,
+                                ), // Scaled font size
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF2D3748),
+                                color: const Color(0xFF2D3748),
                               ),
                             ),
                           ),
-                          SizedBox(height: 16),
+                          SizedBox(
+                            height: SizeConfig().hp(0.67),
+                          ), // 16px height
                           QuranPartsGrid(parts: state.parts),
-                          SizedBox(height: 20),
+                          SizedBox(
+                            height: SizeConfig().hp(0.83),
+                          ), // 20px height
                         ],
                       ),
                     );
@@ -96,14 +110,24 @@ class QuranPartsPageWidget extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.error, size: 64, color: Colors.red),
-                          SizedBox(height: 16),
+                          Icon(
+                            Icons.error,
+                            size: SizeConfig().wp(17.1),
+                            color: Colors.red,
+                          ), // 64px icon
+                          SizedBox(
+                            height: SizeConfig().hp(0.67),
+                          ), // 16px height
                           Text(
                             'حدث خطأ: ${state.message}',
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 16),
+                            style: TextStyle(
+                              fontSize: SizeConfig().sp(16),
+                            ), // Scaled font size
                           ),
-                          SizedBox(height: 16),
+                          SizedBox(
+                            height: SizeConfig().hp(0.67),
+                          ), // 16px height
                           ElevatedButton(
                             onPressed: () {
                               context.read<QuranPartsBloc>().add(
@@ -111,16 +135,16 @@ class QuranPartsPageWidget extends StatelessWidget {
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF48BB78),
+                              backgroundColor: const Color(0xFF48BB78),
                               foregroundColor: Colors.white,
                             ),
-                            child: Text('إعادة المحاولة'),
+                            child: const Text('إعادة المحاولة'),
                           ),
                         ],
                       ),
                     );
                   }
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 },
               ),
             ),
@@ -136,15 +160,20 @@ class CustomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context); // Initialize SizeConfig if used independently
+
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      padding: EdgeInsets.symmetric(
+        horizontal: SizeConfig().wp(2.1),
+        vertical: SizeConfig().hp(0.5),
+      ), // 8px horizontal, 12px vertical
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: Offset(0, 2),
+            blurRadius: SizeConfig().wp(1.07), // 4px blur
+            offset: Offset(0, SizeConfig().hp(0.083)), // 2px offset
           ),
         ],
       ),
@@ -154,8 +183,8 @@ class CustomAppBar extends StatelessWidget {
           IconButton(
             icon: Icon(
               Icons.arrow_back_ios,
-              color: Color(0xFF4A5568),
-              size: 20,
+              color: const Color(0xFF4A5568),
+              size: SizeConfig().wp(5.3), // 20px icon
             ),
             onPressed: () {
               Navigator.pop(context);
@@ -166,23 +195,29 @@ class CustomAppBar extends StatelessWidget {
               Text(
                 'أجزاء القرآن',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: SizeConfig().sp(18), // Scaled font size
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
+                  color: const Color(0xFF2D3748),
                 ),
               ),
-              SizedBox(width: 8),
+              SizedBox(width: SizeConfig().wp(2.1)), // 8px width
               Container(
-                padding: EdgeInsets.all(8),
+                padding: EdgeInsets.all(SizeConfig().wp(2.1)), // 8px padding
                 decoration: BoxDecoration(
-                  color: Color(0xFF48BB78),
-                  borderRadius: BorderRadius.circular(8),
+                  color: const Color(0xFF48BB78),
+                  borderRadius: BorderRadius.circular(
+                    SizeConfig().wp(2.1),
+                  ), // 8px radius
                 ),
-                child: Icon(Icons.menu_book, color: Colors.white, size: 20),
+                child: Icon(
+                  Icons.menu_book,
+                  color: Colors.white,
+                  size: SizeConfig().wp(5.3),
+                ), // 20px icon
               ),
             ],
           ),
-          SizedBox(width: 8),
+          SizedBox(width: SizeConfig().wp(2.1)), // 8px width
         ],
       ),
     );

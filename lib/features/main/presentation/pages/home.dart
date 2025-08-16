@@ -1,9 +1,7 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:halaqaa/core/size.dart';
 import 'package:halaqaa/core/utils/widgets.utils.dart';
-import 'package:halaqaa/features/circleDetails/presentation/BLoC/bloc.dart';
 import 'package:halaqaa/features/circleDetails/presentation/page/circle_details.dart';
 import 'package:halaqaa/features/main/domain/entities/memorization_circle.dart';
 import 'package:halaqaa/features/main/presentation/BLoC/bloc.dart';
@@ -28,15 +26,17 @@ class DashboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context); // Initialize SizeConfig
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'الرئيسية',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: SizeConfig().sp(20), // Scaled font size
             fontWeight: FontWeight.w400,
-            color: Color(0xFF48BB78),
+            color: const Color(0xFF48BB78),
           ),
         ),
         backgroundColor: Colors.white,
@@ -65,12 +65,10 @@ class DashboardView extends StatelessWidget {
           if (state is DashboardLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-
           if (state is DashboardLoaded) {
             return _buildDashboardContent(context, state);
           }
-
-          return const Center(child: Text('حدث خطأ في تحميل البيانات'));
+          return const Center(child: Text('حدث خطأ أثناء تحميل البيانات'));
         },
       ),
     );
@@ -78,58 +76,61 @@ class DashboardView extends StatelessWidget {
 
   Widget _buildDashboardContent(BuildContext context, DashboardLoaded state) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(SizeConfig().wp(4.3)), // 16px padding
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(SizeConfig().wp(6.4)), // 24px padding
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-
+              borderRadius: BorderRadius.circular(
+                SizeConfig().wp(4.3),
+              ), // 16px radius
               boxShadow: [
                 BoxShadow(
-                  color: Color(0xFF48BB78).withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+                  color: const Color(0xFF48BB78).withOpacity(0.1),
+                  blurRadius: SizeConfig().wp(2.7), // 10px blur
+                  offset: Offset(0, SizeConfig().hp(0.12)), // 2px offset
                 ),
               ],
             ),
             child: Column(
               children: [
-                const Text(
-                  'لوحة التحكم',
+                Text(
+                  'مرحبا بك',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: SizeConfig().sp(24), // Scaled font size
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF48BB78),
+                    color: const Color(0xFF48BB78),
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'إدارة حلقات تحفيظ القرآن الكريم',
-                  style: TextStyle(fontSize: 16, color: Color(0xFF718096)),
+                SizedBox(height: SizeConfig().hp(0.5)), // 8px height
+                Text(
+                  'يمكنك إدارة الحلقات والمتابعة مع الطلاب',
+                  style: TextStyle(
+                    fontSize: SizeConfig().sp(16), // Scaled font size
+                    color: const Color(0xFF718096),
+                  ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: SizeConfig().hp(1.5)), // 24px height
                 Row(
                   children: [
                     Expanded(
                       child: _buildStatCard(
                         icon: Icons.school,
-                        title: 'إجمالي الحلقات',
+                        title: 'عدد الحلقات',
                         count: state.circles.length.toString(),
                         color: const Color(0xFFED8936),
                       ),
                     ),
-
-                    const SizedBox(width: 16),
+                    SizedBox(width: SizeConfig().wp(4.3)), // 16px width
                     Expanded(
                       child: _buildStatCard(
                         icon: Icons.groups,
-                        title: 'إجمالي الطلاب',
+                        title: 'عدد الطلاب',
                         count: state.totalStudents.toString(),
                         color: const Color(0xFF48BB78),
                       ),
@@ -139,9 +140,7 @@ class DashboardView extends StatelessWidget {
               ],
             ),
           ),
-
-          const SizedBox(height: 24),
-
+          SizedBox(height: SizeConfig().hp(1.5)), // 24px height
           // Action Buttons
           Row(
             children: [
@@ -149,19 +148,23 @@ class DashboardView extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () => _showCreateCircleDialog(context),
                   icon: const Icon(Icons.add),
-                  label: const Text('حلقة جديدة'),
+                  label: const Text('إنشاء حلقة'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF48BB78),
                     foregroundColor: Colors.white,
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: EdgeInsets.symmetric(
+                      vertical: SizeConfig().hp(1),
+                    ), // 16px vertical padding
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(
+                        SizeConfig().wp(3.2),
+                      ), // 12px radius
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: SizeConfig().wp(4.3)), // 16px width
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () => _showExportDialog(context),
@@ -171,9 +174,13 @@ class DashboardView extends StatelessWidget {
                     backgroundColor: Colors.transparent,
                     foregroundColor: const Color(0xFF48BB78),
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: EdgeInsets.symmetric(
+                      vertical: SizeConfig().hp(1),
+                    ), // 16px vertical padding
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(
+                        SizeConfig().wp(3.2),
+                      ), // 12px radius
                       side: const BorderSide(color: Color(0xFF48BB78)),
                     ),
                   ),
@@ -181,21 +188,17 @@ class DashboardView extends StatelessWidget {
               ),
             ],
           ),
-
-          const SizedBox(height: 24),
-
+          SizedBox(height: SizeConfig().hp(1.5)), // 24px height
           // Circles Section
-          const Text(
+          Text(
             'الحلقات',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: SizeConfig().sp(18), // Scaled font size
               fontWeight: FontWeight.w600,
-              color: Color(0xFF48BB78),
+              color: const Color(0xFF48BB78),
             ),
           ),
-
-          const SizedBox(height: 12),
-
+          SizedBox(height: SizeConfig().hp(0.75)), // 12px height
           if (state.circles.isEmpty)
             _buildEmptyState()
           else
@@ -223,27 +226,32 @@ class DashboardView extends StatelessWidget {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(SizeConfig().wp(5.3)), // 20px padding
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(
+          SizeConfig().wp(3.2),
+        ), // 12px radius
       ),
       child: Column(
         children: [
-          Icon(icon, size: 32, color: color),
-          const SizedBox(height: 12),
+          Icon(icon, size: SizeConfig().wp(8.5), color: color), // 32px icon
+          SizedBox(height: SizeConfig().hp(0.75)), // 12px height
           Text(
             count,
             style: TextStyle(
-              fontSize: 24,
+              fontSize: SizeConfig().sp(24), // Scaled font size
               fontWeight: FontWeight.bold,
               color: color,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: SizeConfig().hp(0.25)), // 4px height
           Text(
             title,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF718096)),
+            style: TextStyle(
+              fontSize: SizeConfig().sp(14), // Scaled font size
+              color: const Color(0xFF718096),
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -255,17 +263,20 @@ class DashboardView extends StatelessWidget {
     return InkWell(
       onTap: ontap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
+        margin: EdgeInsets.only(
+          bottom: SizeConfig().hp(0.75),
+        ), // 12px bottom margin
+        padding: EdgeInsets.all(SizeConfig().wp(4.3)), // 16px padding
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-
+          borderRadius: BorderRadius.circular(
+            SizeConfig().wp(3.2),
+          ), // 12px radius
           boxShadow: [
             BoxShadow(
-              color: Color(0xFF48BB78).withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
+              color: const Color(0xFF48BB78).withOpacity(0.1),
+              blurRadius: SizeConfig().wp(2.7), // 10px blur
+              offset: Offset(0, SizeConfig().hp(0.12)), // 2px offset
             ),
           ],
         ),
@@ -277,21 +288,21 @@ class DashboardView extends StatelessWidget {
                 children: [
                   Text(
                     circle.name,
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: TextStyle(
+                      fontSize: SizeConfig().sp(16), // Scaled font size
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF48BB78),
+                      color: const Color(0xFF48BB78),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: SizeConfig().hp(0.25)), // 4px height
                   Text(
                     circle.description,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF718096),
+                    style: TextStyle(
+                      fontSize: SizeConfig().sp(14), // Scaled font size
+                      color: const Color(0xFF718096),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: SizeConfig().hp(0.5)), // 8px height
                   Row(
                     children: [
                       const Icon(
@@ -299,12 +310,12 @@ class DashboardView extends StatelessWidget {
                         size: 16,
                         color: Color(0xFF718096),
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: SizeConfig().wp(1.1)), // 4px width
                       Text(
                         'تاريخ الإنشاء: ${_formatDate(circle.createdAt)}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF718096),
+                        style: TextStyle(
+                          fontSize: SizeConfig().sp(12), // Scaled font size
+                          color: const Color(0xFF718096),
                         ),
                       ),
                     ],
@@ -315,20 +326,22 @@ class DashboardView extends StatelessWidget {
             Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: SizeConfig().wp(2.1), // 8px horizontal
+                    vertical: SizeConfig().hp(0.25), // 4px vertical
                   ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF48BB78).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(
+                      SizeConfig().wp(3.2),
+                    ), // 12px radius
                   ),
                   child: Text(
                     '${circle.studentsCount} طلاب',
-                    style: const TextStyle(
-                      fontSize: 12,
+                    style: TextStyle(
+                      fontSize: SizeConfig().sp(12), // Scaled font size
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF48BB78),
+                      color: const Color(0xFF48BB78),
                     ),
                   ),
                 ),
@@ -343,27 +356,36 @@ class DashboardView extends StatelessWidget {
   Widget _buildEmptyState() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(48),
+      padding: EdgeInsets.all(SizeConfig().wp(12.8)), // 48px padding
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(
+          SizeConfig().wp(3.2),
+        ), // 12px radius
       ),
       child: Column(
         children: [
-          Icon(Icons.book_outlined, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
+          Icon(
+            Icons.book_outlined,
+            size: SizeConfig().wp(17.1),
+            color: Colors.grey[400],
+          ), // 64px icon
+          SizedBox(height: SizeConfig().hp(1)), // 16px height
           Text(
-            'لا توجد حلقات حالياً',
+            'لا توجد حلقات مُنشأة',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: SizeConfig().sp(16), // Scaled font size
               fontWeight: FontWeight.w500,
               color: Colors.grey[600],
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: SizeConfig().hp(0.5)), // 8px height
           Text(
-            'ابدأ بإنشاء حلقة جديدة لتحفيظ القرآن',
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            'اضغط على إنشاء حلقة لإضافة حلقات جديدة',
+            style: TextStyle(
+              fontSize: SizeConfig().sp(14), // Scaled font size
+              color: Colors.grey[500],
+            ),
           ),
         ],
       ),
@@ -377,7 +399,6 @@ class DashboardView extends StatelessWidget {
   void _showCreateCircleDialog(BuildContext context) {
     final nameController = TextEditingController();
     final descriptionController = TextEditingController();
-
     showDialog(
       context: context,
       builder: (dialogContext) => BlocProvider.value(
@@ -385,7 +406,9 @@ class DashboardView extends StatelessWidget {
         child: AlertDialog(
           backgroundColor: Colors.grey[100],
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(
+              SizeConfig().wp(2.7),
+            ), // 10px radius
           ),
           content: SingleChildScrollView(
             child: Column(
@@ -393,32 +416,30 @@ class DashboardView extends StatelessWidget {
               children: [
                 SizedBox(
                   width: double.infinity,
-                  child: const Text(
+                  child: Text(
                     'إنشاء حلقة جديدة',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: SizeConfig().sp(20), // Scaled font size
                       fontWeight: FontWeight.w400,
                       color: Colors.black,
                     ),
                   ),
                 ),
-                const SizedBox(height: 16, width: 500),
-
+                SizedBox(height: SizeConfig().hp(1), width: 500), // 16px height
                 textField(
-                  hintText: 'مثال : حلقة الفجر',
+                  hintText: 'مثال : حلقة القارئ',
                   title: 'اسم الحلقة',
                   controller: nameController,
                 ),
-
-                const SizedBox(height: 16),
+                SizedBox(height: SizeConfig().hp(1)), // 16px height
                 textField(
                   hintText: 'وصف مختصر للحلقة...',
-                  height: 150,
+                  height: 150, // This is a fixed height, might need adjustment
                   isHintCentered: false,
                   title: 'وصف الحلقة',
                   controller: descriptionController,
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: SizeConfig().hp(1.5)), // 24px height
                 Row(
                   children: [
                     Expanded(
@@ -426,7 +447,6 @@ class DashboardView extends StatelessWidget {
                         onPressed: () {
                           final name = nameController.text.trim();
                           final description = descriptionController.text.trim();
-
                           if (name.isEmpty || description.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -436,7 +456,6 @@ class DashboardView extends StatelessWidget {
                             );
                             return;
                           }
-
                           context.read<DashboardBloc>().add(
                             CreateCircleEvent(
                               name: name,
@@ -449,14 +468,15 @@ class DashboardView extends StatelessWidget {
                           backgroundColor: const Color(0xFF48BB78),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
+                            borderRadius: BorderRadius.circular(
+                              SizeConfig().wp(2.1),
+                            ), // 8px radius
                           ),
                         ),
                         child: const Text('إنشاء حلقة'),
                       ),
                     ),
-
-                    const SizedBox(width: 16),
+                    SizedBox(width: SizeConfig().wp(4.3)), // 16px width
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
@@ -466,7 +486,9 @@ class DashboardView extends StatelessWidget {
                           backgroundColor: Colors.grey[300],
                           foregroundColor: Colors.black,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
+                            borderRadius: BorderRadius.circular(
+                              SizeConfig().wp(2.1),
+                            ), // 8px radius
                           ),
                         ),
                         child: const Text('إلغاء'),
@@ -487,7 +509,7 @@ class DashboardView extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('تصدير البيانات'),
-        content: const Text('هل تريد تصدير جميع بيانات الحلقات؟'),
+        content: const Text('هل تريد تصدير بيانات جميع الحلقات؟'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
