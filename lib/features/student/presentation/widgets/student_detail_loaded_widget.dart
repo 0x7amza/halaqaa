@@ -199,39 +199,73 @@ class StudentDetailLoadedWidget extends StatelessWidget {
             ),
             SizedBox(height: SizeConfig().hp(1)), // 16px
             // Add New Session Button
-            SizedBox(
-              width: double.infinity,
-              height: SizeConfig().hp(5), // 45px
-              child: ElevatedButton(
-                onPressed: () {
-                  _showAddSessionDialog(
-                    context,
-                    BlocProvider.of<StudentDetailBloc>(context),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF48BB78),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8), // 16px
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    _showAddSessionDialog(
+                      context,
+                      BlocProvider.of<StudentDetailBloc>(context),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF48BB78),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8), // 16px
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add, size: SizeConfig().wp(6.4)), // 24px
+                      SizedBox(width: SizeConfig().wp(2.1)), // 8px
+                      Text(
+                        'تسجيل جلسه',
+                        style: TextStyle(
+                          fontSize: SizeConfig().sp(16), // 16px
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add, size: SizeConfig().wp(6.4)), // 24px
-                    SizedBox(width: SizeConfig().wp(2.1)), // 8px
-                    Text(
-                      'إضافة جلسة جديدة',
-                      style: TextStyle(
-                        fontSize: SizeConfig().sp(16), // 16px
-                        fontWeight: FontWeight.w600,
-                      ),
+                ElevatedButton(
+                  onPressed: () {
+                    _showAddSessionDialogSecend(
+                      context,
+                      BlocProvider.of<StudentDetailBloc>(context),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8), // 16px
                     ),
-                  ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.event_busy_rounded,
+                        size: SizeConfig().wp(6.4),
+                      ), // 24px
+                      SizedBox(width: SizeConfig().wp(2.1)), // 8px
+                      Text(
+                        'تسجيل كغائب',
+                        style: TextStyle(
+                          fontSize: SizeConfig().sp(16), // 16px
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
             SizedBox(height: SizeConfig().hp(1.5)), // 24px
             // Progress Record Title
@@ -287,6 +321,99 @@ class StudentDetailLoadedWidget extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showAddSessionDialogSecend(
+    BuildContext context,
+    StudentDetailBloc bloc,
+  ) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return BlocProvider.value(
+          value: bloc,
+          child: AlertDialog(
+            backgroundColor: Colors.grey[100],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(SizeConfig().wp(2.7)),
+            ),
+            content: SizedBox(
+              width: SizeConfig().wp(75),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: Text(
+                      'هل انت متاكد من تسجيله كغائب؟',
+                      style: TextStyle(
+                        fontSize: SizeConfig().sp(20), // 20px
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: SizeConfig().hp(1.5)), // 24px
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            bloc.add(
+                              AddSessionEvent(
+                                session: Session(
+                                  date: DateTime.now(),
+                                  surahNumber: (-1).toString(),
+                                  fromAyah: -1,
+                                  toAyah: -1,
+                                  status: 'غائب',
+                                  notes: '',
+                                  stars: 0,
+                                  studentId: student.id,
+                                  id: DateTime.now().toIso8601String(),
+                                ),
+                              ),
+                            );
+                            Navigator.of(dialogContext).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF48BB78),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                SizeConfig().wp(2.1),
+                              ), // 8px
+                            ),
+                          ),
+                          child: const Text('نعم'),
+                        ),
+                      ),
+                      SizedBox(width: SizeConfig().wp(4.3)), // 16px
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey[300],
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                SizeConfig().wp(2.1),
+                              ), // 8px
+                            ),
+                          ),
+                          child: const Text('إلغاء'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -413,7 +540,7 @@ class StudentDetailLoadedWidget extends StatelessWidget {
                             elevation: 4,
                             menuMaxHeight: 200,
                             alignment: AlignmentDirectional.bottomStart,
-                            items: ['ممتاز', 'مقبول', 'جيد', 'ممتاز جداً']
+                            items: ['ممتاز', 'جيد', 'يحتاج تحسين']
                                 .map(
                                   (value) => DropdownMenuItem<String>(
                                     value: value,

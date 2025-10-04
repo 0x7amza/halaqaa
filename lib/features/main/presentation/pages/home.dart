@@ -141,53 +141,29 @@ class DashboardView extends StatelessWidget {
             ),
           ),
           SizedBox(height: SizeConfig().hp(1.5)), // 24px height
+
           // Action Buttons
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _showCreateCircleDialog(context),
-                  icon: const Icon(Icons.add),
-                  label: const Text('إنشاء حلقة'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF48BB78),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: EdgeInsets.symmetric(
-                      vertical: SizeConfig().hp(1),
-                    ), // 16px vertical padding
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        SizeConfig().wp(3.2),
-                      ), // 12px radius
-                    ),
-                  ),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () => _showCreateCircleDialog(context),
+              icon: const Icon(Icons.add),
+              label: const Text('إنشاء حلقة'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF48BB78),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: EdgeInsets.symmetric(
+                  vertical: SizeConfig().hp(1),
+                ), // 16px vertical padding
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    SizeConfig().wp(3.2),
+                  ), // 12px radius
                 ),
               ),
-              SizedBox(width: SizeConfig().wp(4.3)), // 16px width
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _showExportDialog(context),
-                  icon: const Icon(Icons.download),
-                  label: const Text('تصدير البيانات'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: const Color(0xFF48BB78),
-                    elevation: 0,
-                    padding: EdgeInsets.symmetric(
-                      vertical: SizeConfig().hp(1),
-                    ), // 16px vertical padding
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        SizeConfig().wp(3.2),
-                      ), // 12px radius
-                      side: const BorderSide(color: Color(0xFF48BB78)),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
+
           SizedBox(height: SizeConfig().hp(1.5)), // 24px height
           // Circles Section
           Text(
